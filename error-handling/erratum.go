@@ -1,1 +1,3 @@
 package erratum
+
+func Use()
