@@ -3,6 +3,7 @@ package paasio
 import (
 	"bytes"
 	"crypto/rand"
+	"fmt"
 	"io"
 	"runtime"
 	"strings"
@@ -39,6 +40,7 @@ func testWrite(t *testing.T, writer func(io.Writer) WriteCounter) {
 		buft := writer(&buf)
 		for _, s := range test.writes {
 			n, err := buft.Write([]byte(s))
+			fmt.Println("s:", s)
 			if err != nil {
 				t.Errorf("test %d: Write(%q) unexpected error: %v", i, s, err)
 				continue
@@ -49,6 +51,7 @@ func testWrite(t *testing.T, writer func(io.Writer) WriteCounter) {
 			}
 		}
 		out := buf.String()
+		fmt.Println("test.writes:", test.writes)
 		if out != strings.Join(test.writes, "") {
 			t.Errorf("test %d: unexpected content in underlying writer: %q", i, out)
 		}

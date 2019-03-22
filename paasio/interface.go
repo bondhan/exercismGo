@@ -16,6 +16,23 @@ type ReadCounter interface {
 	ReadCount() (n int64, nops int)
 }
 
+type readCounter struct {
+}
+
+func (r *readCounter) ReadCount() (int64, int) {
+	return 0, 0
+}
+
+func (r *readCounter) Read(data []byte) (int, error) {
+	return 0, nil
+}
+
+//NewReadCounter ...
+func NewReadCounter(r io.Reader) ReadCounter {
+	return &readCounter{}
+
+}
+
 // WriteCounter is an interface describing objects that can be written to,
 // and that can count the number of times they have been written to.
 //
@@ -30,6 +47,25 @@ type WriteCounter interface {
 	WriteCount() (n int64, nops int)
 }
 
+type writeCounter struct {
+	w io.Writer
+	// counter
+}
+
+func (w *writeCounter) WriteCount() (n int64, nops int) {
+	return 0, 0
+}
+
+func (w *writeCounter) Write(p []byte) (n int, err error) {
+
+	return len(p), nil
+}
+
+// NewWriteCounter ...
+func NewWriteCounter(w io.Writer) WriteCounter {
+	return &writeCounter{}
+}
+
 // ReadWriteCounter is the union of ReadCounter and WriteCounter.
 //
 // All guarantees that apply to either of ReadCounter or WriteCounter
@@ -37,4 +73,17 @@ type WriteCounter interface {
 type ReadWriteCounter interface {
 	ReadCounter
 	WriteCounter
+}
+
+type readWriteCounter struct {
+	readCounter
+	writeCounter
+}
+
+// NewReadWriteCounter ...
+func NewReadWriteCounter(rw io.ReadWriter) ReadWriteCounter {
+	return &readWriteCounter{
+		readCounter:  readCounter{},
+		writeCounter: writeCounter{},
+	}
 }
