@@ -1,6 +1,8 @@
 package secret
 
-import "math"
+import (
+	"math"
+)
 
 var consts = []string{"", "wink", "double blink", "close your eyes", "jump"}
 
@@ -10,6 +12,17 @@ func reverseSlice(input []string) []string {
 	}
 	return append(reverseSlice(input[1:]), input[0])
 }
+
+// func reverseSlice(input []string) []string {
+// 	var reversedSlice []string
+
+// 	len := len(input)
+// 	for i := len - 1; i >= 0; i-- {
+// 		reversedSlice = append(reversedSlice, input[i])
+// 	}
+
+// 	return reversedSlice
+// }
 
 func Handshake(code uint) []string {
 	var compile []string
