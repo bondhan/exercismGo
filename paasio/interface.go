@@ -1,6 +1,9 @@
 package paasio
 
-import "io"
+import (
+	"io"
+	"sync"
+)
 
 // ReadCounter is an interface describing objects that can be read from,
 // and that can count the number of times they have been read from.
@@ -17,20 +20,32 @@ type ReadCounter interface {
 }
 
 type readCounter struct {
+	rb  io.Reader
+	mux sync.Mutex
+	rc  int
+	ops int
 }
 
 func (r *readCounter) ReadCount() (int64, int) {
-	return 0, 0
+	r.mux.Lock()
+	defer r.mux.Unlock()
+
+	return int64(r.rc), r.ops
 }
 
-func (r *readCounter) Read(data []byte) (int, error) {
-	return 0, nil
+func (r *readCounter) Read(data []byte) (n int, err error) {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+	n, err = r.rb.Read(data)
+	r.rc += n
+	r.ops++
+
+	return n, err
 }
 
 //NewReadCounter ...
 func NewReadCounter(r io.Reader) ReadCounter {
-	return &readCounter{}
-
+	return &readCounter{rb: r, rc: 0, ops: 0}
 }
 
 // WriteCounter is an interface describing objects that can be written to,
@@ -48,22 +63,32 @@ type WriteCounter interface {
 }
 
 type writeCounter struct {
-	w io.Writer
-	// counter
+	wb  io.Writer
+	mux sync.Mutex
+	wc  int64
+	ops int
 }
 
 func (w *writeCounter) WriteCount() (n int64, nops int) {
-	return 0, 0
+	w.mux.Lock()
+	defer w.mux.Unlock()
+	return w.wc, w.ops
 }
 
 func (w *writeCounter) Write(p []byte) (n int, err error) {
+	w.mux.Lock()
+	defer w.mux.Unlock()
 
-	return len(p), nil
+	n, err = w.wb.Write(p)
+	w.wc += int64(n)
+	w.ops++
+
+	return n, err
 }
 
 // NewWriteCounter ...
 func NewWriteCounter(w io.Writer) WriteCounter {
-	return &writeCounter{}
+	return &writeCounter{wb: w, wc: 0, ops: 0}
 }
 
 // ReadWriteCounter is the union of ReadCounter and WriteCounter.
@@ -83,7 +108,7 @@ type readWriteCounter struct {
 // NewReadWriteCounter ...
 func NewReadWriteCounter(rw io.ReadWriter) ReadWriteCounter {
 	return &readWriteCounter{
-		readCounter:  readCounter{},
-		writeCounter: writeCounter{},
+		readCounter:  readCounter{rb: rw, rc: 0, ops: 0},
+		writeCounter: writeCounter{wb: rw, wc: 0, ops: 0},
 	}
 }
