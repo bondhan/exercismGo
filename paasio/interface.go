@@ -22,7 +22,7 @@ type ReadCounter interface {
 type readCounter struct {
 	rb  io.Reader
 	mux sync.Mutex
-	rc  int
+	rc  int64
 	ops int
 }
 
@@ -30,14 +30,14 @@ func (r *readCounter) ReadCount() (int64, int) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 
-	return int64(r.rc), r.ops
+	return r.rc, r.ops
 }
 
 func (r *readCounter) Read(data []byte) (n int, err error) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 	n, err = r.rb.Read(data)
-	r.rc += n
+	r.rc += int64(n)
 	r.ops++
 
 	return n, err
