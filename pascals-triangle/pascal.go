@@ -1,6 +1,6 @@
 package pascal
 
-func calcTriangle(memory [][]int, n int) [][]int {
+func calcTriangle(memory [][]int, n int, max int) [][]int {
 	var inner []int
 	inner = append(inner, 1)
 
@@ -12,15 +12,19 @@ func calcTriangle(memory [][]int, n int) [][]int {
 		inner = append(inner, 1)
 	}
 
-	return append(memory, inner)
+	memory = append(memory, inner)
+
+	if n == max {
+		return memory
+	}
+	return calcTriangle(memory, n+1, max)
 }
 
+// Triangle ...
 func Triangle(n int) [][]int {
 	var memory [][]int
 
-	for i := 1; i <= n; i++ {
-		memory = calcTriangle(memory, i)
-	}
+	memory = calcTriangle(memory, 1, n)
 
 	return memory
 }
