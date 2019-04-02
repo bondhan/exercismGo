@@ -112,6 +112,7 @@ that lay in the house that Jack built.`
 
 func TestVerse(t *testing.T) {
 	for v := 0; v < len(expectedVerses); v++ {
+		// fmt.Println(expectedVerses[v])
 		if ret := Verse(v + 1); ret != expectedVerses[v] {
 			t.Fatalf("Verse(%d) =\n%q\n  want:\n%q", v+1, ret, expectedVerses[v])
 		}
