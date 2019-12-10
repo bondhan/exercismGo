@@ -119,35 +119,12 @@ func (l *List) Reverse() *List {
 		return l
 	}
 
-	tmp := l.head
-	l.head = l.tail
-	l.tail = tmp
-
 	firstNode := l.tail
-	secNode := firstNode.Prev()
+	secondNode := firstNode.PreviousNode
 
-	isLastNode := false
-	for !isLastNode {
-
-		if secNode == nil {
-			isLastNode = true
-			break
-		}
-
-		firstNode.PreviousNode = secNode
-		tmp := secNode.NextNode
-		secNode.NextNode = firstNode
-
-		if firstNode == l.head {
-			firstNode.NextNode = nil
-		}
-
-		if firstNode == l.tail {
-			firstNode.PreviousNode = nil
-		}
-
-		firstNode = secNode
-		secNode = tmp
+	for firstNode.PreviousNode != nil {
+		firstNode.NextNode = secondNode
+		secondNode.PreviousNode = firstNode
 	}
 
 	return l
