@@ -16,7 +16,7 @@ type List struct {
 }
 
 // ErrEmptyList ...
-var ErrEmptyList *List
+var ErrEmptyList error
 
 // Next ...
 func (e *Node) Next() *Node {
@@ -33,7 +33,7 @@ func NewList(args ...interface{}) *List {
 	newList := &List{}
 
 	for _, arg := range args {
-		newList.PushFront(arg)
+		newList.PushFront(arg.(int))
 	}
 
 	return newList
@@ -51,12 +51,12 @@ func (l *List) PushFront(v interface{}) {
 		l.tail = l.head
 	} else {
 		newNode := &Node{
-			PreviousNode: l.head,
+			PreviousNode: l.tail,
 			Val:          v.(int),
 			NextNode:     nil,
 		}
-		l.tail = l.head
-		l.head = newNode
+		l.tail.NextNode = newNode
+		l.tail = newNode
 	}
 
 }
@@ -64,20 +64,20 @@ func (l *List) PushFront(v interface{}) {
 // PushBack ...
 func (l *List) PushBack(v interface{}) {
 	if l.tail == nil {
-		newNode := &Node{
+		l.tail = &Node{
 			PreviousNode: nil,
 			Val:          v.(int),
 			NextNode:     nil,
 		}
-		l.tail = newNode
-		l.head = newNode
+		l.head = l.tail
 	} else {
 		newNode := &Node{
 			PreviousNode: nil,
 			Val:          v.(int),
-			NextNode:     l.tail,
+			NextNode:     l.head,
 		}
-		l.tail = newNode
+		l.head.PreviousNode = newNode
+		l.head = newNode
 	}
 }
 
@@ -114,12 +114,40 @@ func (l *List) PopBack() (interface{}, error) {
 
 // Reverse ...
 func (l *List) Reverse() *List {
-	node := l.head
-	for node != nil {
-		if node.Prev() != nil {
-			node.NextNode = node.Prev()
-			node = node.Prev()
+
+	if l.head == nil || l.head == l.tail {
+		return l
+	}
+
+	tmp := l.head
+	l.head = l.tail
+	l.tail = tmp
+
+	firstNode := l.tail
+	secNode := firstNode.Prev()
+
+	isLastNode := false
+	for !isLastNode {
+
+		if secNode == nil {
+			isLastNode = true
+			break
 		}
+
+		firstNode.PreviousNode = secNode
+		tmp := secNode.NextNode
+		secNode.NextNode = firstNode
+
+		if firstNode == l.head {
+			firstNode.NextNode = nil
+		}
+
+		if firstNode == l.tail {
+			firstNode.PreviousNode = nil
+		}
+
+		firstNode = secNode
+		secNode = tmp
 	}
 
 	return l
@@ -132,5 +160,5 @@ func (l *List) First() *Node {
 
 // Last ...
 func (l *List) Last() *Node {
-	return l.head
+	return l.tail
 }
