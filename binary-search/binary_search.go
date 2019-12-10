@@ -3,29 +3,18 @@ package binarysearch
 // SearchInts ...
 func SearchInts(slice []int, key int) int {
 
-	if len(slice) < 1 {
-		return -1
-	}
+	l := 0
+	r := len(slice) - 1
 
-	low := 0
-	high := len(slice) - 1
-	half := (low + high) / 2
-
-	for true {
+	for m := (l + r) / 2; l <= r; m = (l + r) / 2 {
 
 		//check if it is at the middle
-		if key == slice[half] {
-			return half
-		} else if key > slice[half] { // if key larger than the middle, make starting point from the half
-			low = half + 1
-		} else if key < slice[half] { // if key is smaller, make end point is the half
-			high = half - 1
-		}
-
-		half = (low + high) / 2 //compute the new half
-
-		if low > high {
-			break
+		if key == slice[m] {
+			return m
+		} else if key > slice[m] { // if key larger than the middle, make starting point from the half
+			l = m + 1
+		} else if key < slice[m] { // if key is smaller, make end point is the half
+			r = m - 1
 		}
 	}
 
