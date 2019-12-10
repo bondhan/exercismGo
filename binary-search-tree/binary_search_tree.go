@@ -7,12 +7,12 @@ type SearchTreeData struct {
 	right *SearchTreeData
 }
 
-// SearchTreeData ...
-type searchTreeData interface {
-	Insert(int)
-	MapString(func(int) string) []string
-	MapInt(func(int) int) []int
-}
+// // SearchTreeData ...
+// type searchTreeData interface {
+// 	Insert(int)
+// 	MapString(func(int) string) []string
+// 	MapInt(func(int) int) []int
+// }
 
 // Bst ...
 func Bst(number int) *SearchTreeData {
