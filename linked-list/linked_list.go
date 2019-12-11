@@ -1,7 +1,5 @@
 package linkedlist
 
-import "github.com/phayes/errors"
-
 // Node ...
 type Node struct {
 	Val          interface{}
@@ -20,12 +18,21 @@ var ErrEmptyList error
 
 // Next ...
 func (e *Node) Next() *Node {
-	return e.NextNode
+	var n *Node
+	if e != nil {
+		return e.NextNode
+	}
+	return n
 }
 
 // Prev ...
 func (e *Node) Prev() *Node {
-	return e.PreviousNode
+	var n *Node
+	if e != nil {
+		return e.PreviousNode
+	}
+
+	return n
 }
 
 // NewList ...
@@ -33,7 +40,7 @@ func NewList(args ...interface{}) *List {
 	newList := &List{}
 
 	for _, arg := range args {
-		newList.PushFront(arg.(int))
+		newList.PushBack(arg.(int))
 	}
 
 	return newList
@@ -41,6 +48,28 @@ func NewList(args ...interface{}) *List {
 
 // PushFront ...
 func (l *List) PushFront(v interface{}) {
+
+	if l.tail == nil {
+		l.tail = &Node{
+			PreviousNode: nil,
+			Val:          v.(int),
+			NextNode:     nil,
+		}
+		l.head = l.tail
+	} else {
+		newNode := &Node{
+			PreviousNode: nil,
+			Val:          v.(int),
+			NextNode:     l.head,
+		}
+		l.head.PreviousNode = newNode
+		l.head = newNode
+	}
+
+}
+
+// PushBack ...
+func (l *List) PushBack(v interface{}) {
 	if l.head == nil {
 		l.head = &Node{
 			PreviousNode: nil,
@@ -61,55 +90,54 @@ func (l *List) PushFront(v interface{}) {
 
 }
 
-// PushBack ...
-func (l *List) PushBack(v interface{}) {
-	if l.tail == nil {
-		l.tail = &Node{
-			PreviousNode: nil,
-			Val:          v.(int),
-			NextNode:     nil,
-		}
-		l.head = l.tail
-	} else {
-		newNode := &Node{
-			PreviousNode: nil,
-			Val:          v.(int),
-			NextNode:     l.head,
-		}
-		l.head.PreviousNode = newNode
-		l.head = newNode
-	}
-}
-
 // PopFront ...
 func (l *List) PopFront() (interface{}, error) {
+
 	if l.head == nil {
-		return ErrEmptyList, errors.New("empty")
+		return nil, ErrEmptyList
 	}
 
-	theNode := l.head
+	firstNode := l.head
+	var secNode *Node
+	secNode = nil
 
-	tmpNode := l.head.Prev()
-	tmpNode.NextNode = nil
-	l.head = tmpNode
+	if l.head.NextNode != nil {
+		secNode = l.head.Next()
+		secNode.PreviousNode = nil
+	}
 
-	return theNode, nil
+	l.head = secNode
+
+	if l.head == nil {
+		l.tail = l.head
+	}
+
+	return firstNode.Val, nil
 }
 
 // PopBack ...
 func (l *List) PopBack() (interface{}, error) {
+
 	if l.tail == nil {
-		return ErrEmptyList, errors.New("empty")
+		return nil, ErrEmptyList
 	}
 
-	theNode := l.tail
+	firstNode := l.tail
+	var secNode *Node
+	secNode = nil
 
-	tmpNode := l.tail.Next()
-	tmpNode.PreviousNode = nil
-	l.tail = tmpNode
+	if l.tail.PreviousNode != nil {
+		secNode = l.tail.PreviousNode
+		secNode.NextNode = nil
+	}
 
-	return theNode, nil
+	l.tail = secNode
 
+	if l.tail == nil {
+		l.head = l.tail
+	}
+
+	return firstNode.Val, nil
 }
 
 // Reverse ...
@@ -119,13 +147,23 @@ func (l *List) Reverse() *List {
 		return l
 	}
 
-	firstNode := l.tail
-	secondNode := firstNode.PreviousNode
+	node := l.tail
 
-	for firstNode.PreviousNode != nil {
-		firstNode.NextNode = secondNode
-		secondNode.PreviousNode = firstNode
+	for node.PreviousNode != nil {
+		tmp := node.PreviousNode
+		node.PreviousNode = node.NextNode
+		node.NextNode = tmp
+
+		node = tmp
 	}
+
+	tmp := node.PreviousNode
+	node.PreviousNode = node.NextNode
+	node.NextNode = tmp
+
+	tmp = l.tail
+	l.tail = l.head
+	l.head = tmp
 
 	return l
 }

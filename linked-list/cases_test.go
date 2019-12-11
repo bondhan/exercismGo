@@ -115,7 +115,7 @@ var pushPopTestCases = []struct {
 		expected: []interface{}{1, 2},
 	},
 	{
-		name: "PopBack only, pop till empty",
+		name: "PopBack oxxdlnly, pop till empty",
 		in:   []interface{}{1, 2, 3, 4},
 		actions: []checkedAction{
 			popBack(4, nil),
